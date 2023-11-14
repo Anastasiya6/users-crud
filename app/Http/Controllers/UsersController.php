@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Services\Users\UserService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UsersController extends Controller
@@ -31,12 +31,9 @@ class UsersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(StoreUserRequest $request, UserService $userService): RedirectResponse
     {
-        $user = new User();
-        $user->fill($request->except('_token','password'));
-        $user->password = bcrypt($request->input('password'));
-        $user->save();
+        $userService->store($request);
 
         return to_route('users.index');
     }
@@ -60,13 +57,10 @@ class UsersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user, UserService $userService): RedirectResponse
     {
-        $user->fill($request->except('_token', 'password'));
-        if($request->input('password')) {
-            $user->password = bcrypt($request->input('password'));
-        }
-        $user->save();
+        $userService->update($request, $user);
+
         return to_route('users.index');
     }
 
